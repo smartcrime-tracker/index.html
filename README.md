@@ -1,7 +1,6 @@
 const USE_MOCK = false;
 const API_BASE  = "https://YOUR_PROD_API";
 const API_KEY   = "YOUR_TOKEN";
-
 <!DOCTYPE html>
 <html lang="bn">
 <head>
