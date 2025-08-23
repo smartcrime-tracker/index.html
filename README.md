@@ -1,14 +1,10 @@
-const USE_MOCK = false;
-const API_BASE  = "https://YOUR_PROD_API";
-const API_KEY   = "YOUR_TOKEN";
 <!DOCTYPE html>
 <html lang="bn">
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>SMART CRIME TRACKER — Full Demo</title>
+<title>SMART CRIME TRACKER — Full Demo + Admin Logo Manager</title>
 
-<!-- Map (Leaflet) -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
@@ -19,9 +15,9 @@ const API_KEY   = "YOUR_TOKEN";
   }
   *{box-sizing:border-box} html,body{height:100%}
   body{margin:0;font-family:ui-sans-serif,system-ui,Segoe UI,Roboto;background:var(--bg);color:var(--text)}
-  /* starry bg */
+  /* starry base */
   body::before, body::after{
-    content:""; position:fixed; inset:0; z-index:-2;
+    content:""; position:fixed; inset:0; z-index:-3;
     background:
       radial-gradient(2px 2px at 20% 30%, #fff8, transparent 40%),
       radial-gradient(1.5px 1.5px at 70% 60%, #fff6, transparent 40%),
@@ -30,7 +26,8 @@ const API_KEY   = "YOUR_TOKEN";
       linear-gradient(180deg,#08111a 0%, #0a1923 60%, #071018 100%);
     animation: twinkle 12s linear infinite;
   }
-  body::after{ filter:blur(1px); opacity:.7 }
+  /* optional admin-set background image layer */
+  #dynamicBg{position:fixed; inset:0; z-index:-2; background-size:cover; background-position:center; opacity:.22; pointer-events:none;}
   @keyframes twinkle{0%{opacity:.9}50%{opacity:.7}100%{opacity:.9}}
 
   header{position:sticky;top:0;z-index:10;background:rgba(7,14,22,.8);backdrop-filter:blur(6px);
@@ -38,9 +35,8 @@ const API_KEY   = "YOUR_TOKEN";
   .flex{display:flex;align-items:center;gap:10px}
   .space{justify-content:space-between}
   .logo{display:flex;align-items:center;gap:10px}
-  .logoMark{width:34px;height:34px;border-radius:50%;background:
-    radial-gradient(circle at 30% 30%, #44f5ff 0 20%, #198a95 21% 60%, #0b3e47 61% 100%);
-    box-shadow:0 0 10px #31d0c6aa inset, 0 0 16px #31d0c655}
+  .logoMark{width:36px;height:36px;border-radius:10px;overflow:hidden;display:grid;place-items:center;background:#0c2030;border:1px solid #1d4355}
+  .logoMark img{width:100%;height:100%;object-fit:cover}
   .brand{font-weight:800;letter-spacing:.5px}
   .tabs{display:flex;flex-wrap:wrap;gap:8px;margin:10px auto;max-width:1100px;padding:0 10px}
   .tabs button{background:#123646;border:1px solid var(--line);color:#daf; padding:9px 12px;border-radius:10px;cursor:pointer}
@@ -64,18 +60,18 @@ const API_KEY   = "YOUR_TOKEN";
   .badge{display:inline-block;padding:4px 8px;border-radius:999px;background:#0a2230;border:1px solid #1e5063;color:#9fd}
   .switch{display:flex;align-items:center;gap:8px}
   #map{height:360px;border-radius:12px;border:1px solid var(--line)}
-  .splash{padding:26px;border-radius:12px;background:
-    linear-gradient(180deg,#071119 0%, transparent 50%, #071019 100%)}
+  .splash{padding:26px;border-radius:12px;background:linear-gradient(180deg,#071119 0%, transparent 50%, #071019 100%)}
   .dua{font-size:16px;line-height:1.9}
   .noskip{user-select:none}
   .footer{color:#8fb5b2;text-align:center;font-size:12px;padding:20px}
 </style>
 </head>
 <body>
+<div id="dynamicBg"></div>
 
 <header class="flex space">
   <div class="logo">
-    <div class="logoMark" aria-hidden="true"></div>
+    <div class="logoMark"><img id="logoImg" alt="Logo"/></div>
     <div>
       <div class="brand">SMART CRIME TRACKER</div>
       <div style="font-size:12px;color:#9bd">“Sirātul Mustaqīm” Initiative</div>
@@ -87,11 +83,10 @@ const API_KEY   = "YOUR_TOKEN";
   </div>
 </header>
 
-<!-- dynamic tab buttons will be injected here -->
 <div class="tabs" id="tabs"></div>
 
 <div class="wrap">
-  <!-- Splash / Islamic Opening (no-skip) -->
+  <!-- Splash -->
   <section id="tab-splash" class="panel show">
     <div class="splash noskip">
       <h2 style="margin:6px 0 12px 0;">بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِيمِ</h2>
@@ -124,6 +119,7 @@ const API_KEY   = "YOUR_TOKEN";
         <button class="btn secondary" onclick="go('tab-cdr')">CDR</button>
         <button class="btn secondary" onclick="go('tab-map')">Location</button>
         <button class="btn secondary" onclick="go('tab-profile')">Profile</button>
+        <button class="btn secondary" onclick="go('tab-admin')">Admin</button>
       </div>
       <div class="card grow">
         <h4>Audit (last 10)</h4>
@@ -132,7 +128,7 @@ const API_KEY   = "YOUR_TOKEN";
     </div>
   </section>
 
-  <!-- Number Search -->
+  <!-- Number -->
   <section id="tab-number" class="panel">
     <div class="card">
       <h3>📱 Number Search</h3>
@@ -144,10 +140,7 @@ const API_KEY   = "YOUR_TOKEN";
         <div style="align-self:end"><button class="btn" onclick="searchNumber()">Search</button></div>
       </div>
       <div class="row">
-        <div class="card grow">
-          <h4>Result</h4>
-          <pre id="numberOut">Ready.</pre>
-        </div>
+        <div class="card grow"><h4>Result</h4><pre id="numberOut">Ready.</pre></div>
         <div class="card grow">
           <h4>Suspicious Filter</h4>
           <div class="row">
@@ -164,7 +157,7 @@ const API_KEY   = "YOUR_TOKEN";
     </div>
   </section>
 
-  <!-- CDR / Call Logs -->
+  <!-- CDR -->
   <section id="tab-cdr" class="panel">
     <div class="card">
       <h3>📞 CDR / Call Logs (Demo)</h3>
@@ -191,11 +184,10 @@ const API_KEY   = "YOUR_TOKEN";
         </div>
         <pre id="recOut">No playback.</pre>
       </div>
-      <div class="hint">API placeholders: <code>GET {API_BASE}/cdr</code>, <code>GET {API_BASE}/recording?...</code></div>
     </div>
   </section>
 
-  <!-- Live / Last Location -->
+  <!-- Location -->
   <section id="tab-map" class="panel">
     <div class="card">
       <h3>🗺️ Location</h3>
@@ -240,19 +232,54 @@ const API_KEY   = "YOUR_TOKEN";
     <div class="card">
       <h3>🧾 Audit Log</h3>
       <pre id="auditLog">[]</pre>
-      <div class="hint">API placeholder: <code>GET {API_BASE}/audit</code></div>
     </div>
   </section>
 
-  <!-- Admin (optional, toggled) -->
+  <!-- Admin -->
   <section id="tab-admin" class="panel">
     <div class="card">
-      <h3>🛠️ Admin (Demo)</h3>
+      <h3>🛠️ Admin</h3>
       <div class="row">
         <div class="grow"><h4>Pending Users</h4><pre id="adminUsers">Loading…</pre></div>
         <div class="grow"><h4>Requests</h4><pre id="adminReqs">Loading…</pre></div>
       </div>
-      <div class="hint">API placeholders: <code>/admin/users</code>, <code>/admin/approve</code></div>
+    </div>
+
+    <!-- NEW: Admin Settings (Logo/Banner/Background) -->
+    <div class="card">
+      <h3>🎛️ Settings: Branding</h3>
+      <div class="row">
+        <div class="grow">
+          <label>Logo (Upload file)</label>
+          <input id="logoFile" type="file" accept="image/*" />
+          <div class="hint">PNG/SVG/JPG ছোট সাইজ রাখুন (≤ 300KB ভালো)।</div>
+        </div>
+        <div class="grow">
+          <label>Logo URL (alternative)</label>
+          <input id="logoUrl" placeholder="https://...logo.png"/>
+        </div>
+      </div>
+      <div class="row">
+        <div class="grow">
+          <label>Banner / Background Image URL</label>
+          <input id="bgUrl" placeholder="https://...bg.jpg (optional)"/>
+          <div class="hint">দিলে আকাশ-তারার উপর হালকা লেয়ার হিসেবে দেখাবে।</div>
+        </div>
+        <div class="grow">
+          <label>Preview</label>
+          <div class="row">
+            <div class="logoMark" style="width:72px;height:72px"><img id="logoPreview" alt="Preview"/></div>
+            <span class="badge" id="bgPreviewNote">No background set</span>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <button class="btn ok" onclick="saveBranding()">Save</button>
+        <button class="btn secondary" onclick="loadBranding()">Reload</button>
+        <button class="btn danger" onclick="resetBranding()">Reset</button>
+      </div>
+      <div class="hint">ডেমোতে লোকালস্টোরেজে সেভ হয়। লাইভে <code>/admin/settings</code> API ব্যবহার করুন।</div>
+      <pre id="brandOut">Ready.</pre>
     </div>
   </section>
 
@@ -260,35 +287,31 @@ const API_KEY   = "YOUR_TOKEN";
 </div>
 
 <script>
-/* ========= CONFIG (এক জায়গায়) ========= */
-const USE_MOCK = true; // ডেমো চালাতে true; লাইভে false
-const API_BASE  = "https://your-secure-api.example.com";
-const API_KEY   = "YOUR_TOKEN";
-const AUDIT     = [];
-const ALERTS    = [];
+/* ====== CONFIG ====== */
+const USE_MOCK = true;
+const API_BASE = "https://your-secure-api.example.com";
+const API_KEY  = "YOUR_TOKEN";
 
-/* ========= Tabs ========= */
+const AUDIT = [], ALERTS = [];
+
+/* ====== TABS ====== */
 const TABS = [
-  ["tab-splash","Splash"],
-  ["tab-login","Login"],
-  ["tab-number","Number"],
-  ["tab-cdr","CDR"],
-  ["tab-map","Location"],
-  ["tab-profile","Profile"],
-  ["tab-alerts","Alerts"],
-  ["tab-audit","Audit"],
-  ["tab-admin","Admin"]
+  ["tab-splash","Splash"],["tab-login","Login"],["tab-number","Number"],
+  ["tab-cdr","CDR"],["tab-map","Location"],["tab-profile","Profile"],
+  ["tab-alerts","Alerts"],["tab-audit","Audit"],["tab-admin","Admin"]
 ];
 (function mountTabs(){
   const box=document.getElementById('tabs');
   TABS.forEach(([id,label],i)=>{
-    const b=document.createElement('button');
-    b.textContent=label;
+    const b=document.createElement('button'); b.textContent=label;
     if(i===0) b.classList.add('active');
     b.onclick=()=>{ document.querySelectorAll('.tabs button').forEach(x=>x.classList.remove('active')); b.classList.add('active'); go(id); };
     box.appendChild(b);
   });
+  // load branding ASAP
+  loadBranding();
 })();
+
 function go(id){
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('show'));
   document.getElementById(id).classList.add('show');
@@ -300,7 +323,7 @@ function toggleAdmin(){
   else{ go('tab-login'); }
 }
 
-/* ========= Login (demo) ========= */
+/* ====== LOGIN ====== */
 let SESSION={logged:false,user:null,role:"guest"};
 function demoLogin(){
   const u=document.getElementById('lgUser').value.trim()||'admin@local';
@@ -313,11 +336,10 @@ function demoLogin(){
   document.getElementById('loginState').textContent=JSON.stringify(SESSION,null,2);
   document.getElementById('loginInfo').textContent=SESSION.user;
   logAudit('login',{by:SESSION.user});
-  go('tab-number');
-  renderAudit();
+  go('tab-number'); renderAudit();
 }
 
-/* ========= Helpers ========= */
+/* ====== HELPERS/API ====== */
 async function apiGet(path){
   if(USE_MOCK) return mockGet(path);
   const r=await fetch(`${API_BASE}${path}`,{headers:{Authorization:`Bearer ${API_KEY}`}}); 
@@ -330,7 +352,7 @@ async function apiPost(path,body){
 }
 function logAudit(action,extra={}){ AUDIT.push({t:new Date().toISOString(), a:action, ...extra}); }
 
-/* ========= Number ========= */
+/* ====== NUMBER ====== */
 async function searchNumber(){
   const msisdn=document.getElementById('msisdn').value.trim();
   const out=document.getElementById('numberOut');
@@ -338,21 +360,18 @@ async function searchNumber(){
   out.textContent='⏳ Searching…';
   const data=await apiGet(`/number?msisdn=${encodeURIComponent(msisdn)}`);
   out.textContent=JSON.stringify(data,null,2);
-  logAudit('number-search',{msisdn});
-  renderAudit();
+  logAudit('number-search',{msisdn}); renderAudit();
 }
 function applyFilter(){
   const keys=(document.getElementById('filterKeys').value||'').toLowerCase().split(',').map(s=>s.trim()).filter(Boolean);
   const out=document.getElementById('filterOut');
   if(!keys.length){ out.textContent='No filter applied.'; return; }
-  // Simple demo score:
-  const score = Math.min(100, keys.length*18 + (Math.random()*20|0));
+  const score=Math.min(100, keys.length*18 + (Math.random()*20|0));
   out.textContent=`Keywords: ${keys.join(', ')}\nRisk score: ${score}/100\nFlag: ${score>60?'HIGH':'MEDIUM'}`;
-  logAudit('filter',{keys,score});
-  renderAudit();
+  logAudit('filter',{keys,score}); renderAudit();
 }
 
-/* ========= CDR ========= */
+/* ====== CDR ====== */
 async function fetchCDR(){
   const msisdn=document.getElementById('cdrMsisdn').value.trim();
   const days=document.getElementById('cdrDays').value;
@@ -363,10 +382,8 @@ async function fetchCDR(){
   const data=await apiGet(`/cdr?msisdn=${encodeURIComponent(msisdn)}&days=${days}`);
   sum.textContent=JSON.stringify({msisdn,days,total:data.rows.length},null,2);
   out.textContent=JSON.stringify(data.rows,null,2);
-  logAudit('cdr',{msisdn,days,total:data.rows.length});
-  renderAudit();
+  logAudit('cdr',{msisdn,days,total:data.rows.length}); renderAudit();
 }
-/* demo audio tone */
 function playBeep(){
   try{
     const ctx=new (window.AudioContext||window.webkitAudioContext)();
@@ -379,7 +396,7 @@ function playBeep(){
   }catch(e){ document.getElementById('recOut').textContent='Audio not supported.'; }
 }
 
-/* ========= Location ========= */
+/* ====== MAP ====== */
 let MAP, MARKER;
 function ensureMap(){
   if(MAP) return;
@@ -397,11 +414,10 @@ async function loadLocation(){
   MARKER=L.marker([d.lat,d.lng]).addTo(MAP).bindPopup(`📍 ${d.lat.toFixed(5)}, ${d.lng.toFixed(5)}<br/>±${d.accuracy}m`).openPopup();
   MAP.setView([d.lat,d.lng],13);
   out.textContent=JSON.stringify(d,null,2);
-  logAudit('location',{msisdn,coords:[d.lat,d.lng]});
-  renderAudit();
+  logAudit('location',{msisdn,coords:[d.lat,d.lng]}); renderAudit();
 }
 
-/* ========= Profile ========= */
+/* ====== PROFILE ====== */
 async function fetchProfile(){
   const q=document.getElementById('profKey').value.trim();
   const out=document.getElementById('profOut');
@@ -409,35 +425,98 @@ async function fetchProfile(){
   out.textContent='⏳ Fetching…';
   const data=await apiGet(`/profile?q=${encodeURIComponent(q)}`);
   out.textContent=JSON.stringify(data,null,2);
-  logAudit('profile',{q});
-  renderAudit();
+  logAudit('profile',{q}); renderAudit();
 }
 
-/* ========= Alerts & Audit ========= */
+/* ====== ALERTS & AUDIT ====== */
 function addAlert(){
   const k=document.getElementById('alertKey').value.trim();
   if(!k) return;
   ALERTS.push({t:new Date().toISOString(), key:k});
   document.getElementById('alertOut').textContent=JSON.stringify(ALERTS,null,2);
-  logAudit('alert-add',{key:k});
-  renderAudit();
+  logAudit('alert-add',{key:k}); renderAudit();
 }
 function renderAudit(){
   document.getElementById('auditOut')?.textContent = JSON.stringify(AUDIT.slice(-10),null,2);
   document.getElementById('auditLog')?.textContent = JSON.stringify(AUDIT.slice(-30),null,2);
 }
 
-/* ========= Admin (optional) ========= */
+/* ====== ADMIN (users/req) ====== */
 async function loadAdmin(){
   const users=await apiGet('/admin/users');
   const reqs =await apiGet('/requests');
   document.getElementById('adminUsers').textContent=JSON.stringify(users,null,2);
   document.getElementById('adminReqs').textContent =JSON.stringify(reqs,null,2);
-  logAudit('admin-load',{users:users.length,reqs:reqs.length});
-  renderAudit();
+  logAudit('admin-load',{users:users.length,reqs:reqs.length}); renderAudit();
 }
 
-/* ========= MOCK SERVER (Demo Data) ========= */
+/* ====== BRANDING SETTINGS (NEW) ====== */
+const BRAND_KEY='SCT_BRAND_V1';
+
+function loadBranding(){
+  const saved = JSON.parse(localStorage.getItem(BRAND_KEY)||'{}');
+  const logo = saved.logoDataUrl || saved.logoUrl || '';
+  const bg   = saved.bgUrl || '';
+
+  // inputs
+  document.getElementById('logoUrl').value = saved.logoUrl||'';
+  document.getElementById('bgUrl').value   = bg;
+
+  // preview + apply
+  setImgSrc('logoImg', logo || 'https://dummyimage.com/120x120/0d2836/89f8ff&text=SCT');
+  setImgSrc('logoPreview', logo || 'https://dummyimage.com/120x120/0d2836/89f8ff&text=SCT');
+
+  const bgEl = document.getElementById('dynamicBg');
+  if(bg){ bgEl.style.backgroundImage=`url('${bg}')`; document.getElementById('bgPreviewNote').textContent='Background set'; }
+  else { bgEl.style.backgroundImage='none'; document.getElementById('bgPreviewNote').textContent='No background set'; }
+
+  document.getElementById('brandOut').textContent = JSON.stringify(saved||{},null,2);
+}
+function setImgSrc(id,src){ const el=document.getElementById(id); if(el) el.src=src; }
+
+document.getElementById('logoFile')?.addEventListener('change', e=>{
+  const f=e.target.files?.[0]; if(!f) return;
+  const reader=new FileReader();
+  reader.onload=()=>{ document.getElementById('logoPreview').src=reader.result; };
+  reader.readAsDataURL(f);
+});
+
+async function saveBranding(){
+  const fileEl=document.getElementById('logoFile');
+  const urlEl =document.getElementById('logoUrl');
+  const bgEl  =document.getElementById('bgUrl');
+
+  let logoDataUrl=null, logoUrl=(urlEl.value||'').trim();
+  if(fileEl.files && fileEl.files[0]){
+    // prefer file -> dataURL for GitHub Pages (no server)
+    logoDataUrl = await fileToDataURL(fileEl.files[0]);
+  }
+  const payload={ logoUrl, logoDataUrl, bgUrl:bgEl.value.trim(), ts:new Date().toISOString() };
+
+  // Demo: localStorage
+  localStorage.setItem(BRAND_KEY, JSON.stringify(payload));
+  // Live: await apiPost('/admin/settings', payload);
+
+  // Apply immediately
+  loadBranding();
+  document.getElementById('brandOut').textContent='✅ Saved.';
+}
+function resetBranding(){
+  localStorage.removeItem(BRAND_KEY);
+  document.getElementById('logoFile').value='';
+  document.getElementById('logoUrl').value='';
+  document.getElementById('bgUrl').value='';
+  loadBranding();
+  document.getElementById('brandOut').textContent='↺ Reset to default.';
+}
+function fileToDataURL(file){
+  return new Promise((res,rej)=>{
+    const r=new FileReader();
+    r.onload=()=>res(r.result); r.onerror=rej; r.readAsDataURL(file);
+  });
+}
+
+/* ====== MOCK SERVER ====== */
 function mockDelay(ms=350){ return new Promise(r=>setTimeout(r,ms)); }
 async function mockGet(path){
   await mockDelay();
