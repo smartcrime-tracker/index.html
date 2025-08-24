@@ -1,71 +1,100 @@
-<!DOCTYPE html><html lang="bn">
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Smart Crime Tracker</title>
   <style>
-    body, html {
+    body {
       margin: 0;
-      padding: 0;
-      height: 100%;
-      width: 100%;
       font-family: Arial, sans-serif;
-      overflow: hidden;
-    }/* Background image */
-body {
-  background: url('sky-stars.jpg') no-repeat center center fixed;
-  background-size: cover;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-}
-
-/* Logo styling */
-#logo {
-  max-width: 200px;
-  max-height: 200px;
-  margin-bottom: 20px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.1);
-  padding: 10px;
-  box-shadow: 0 0 20px rgba(255,255,255,0.6);
-}
-
-/* Upload button */
-.upload-box {
-  background: rgba(0, 0, 0, 0.5);
-  padding: 15px;
-  border-radius: 12px;
-  color: white;
-  text-align: center;
-}
-input[type=file] {
-  margin-top: 10px;
-  padding: 6px;
-  border-radius: 8px;
-  border: none;
-}
-
+      background: url("background.jpg") no-repeat center center fixed;
+      background-size: cover;
+      color: white;
+      text-align: center;
+    }
+    .overlay {
+      background: rgba(0, 0, 0, 0.6);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .logo {
+      margin-top: 30px;
+    }
+    .logo img {
+      width: 180px;
+      border-radius: 20px;
+      box-shadow: 0 0 25px gold;
+    }
+    .title {
+      font-size: 32px;
+      font-weight: bold;
+      margin-top: 15px;
+      color: gold;
+      text-shadow: 0 0 15px black;
+    }
+    .card {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 20px;
+      margin: 20px auto;
+      max-width: 400px;
+      border-radius: 15px;
+      box-shadow: 0 0 15px black;
+    }
+    input, button {
+      width: 90%;
+      padding: 12px;
+      margin: 8px 0;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+    input {
+      background: rgba(255,255,255,0.9);
+    }
+    button {
+      background: gold;
+      color: black;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    button:hover {
+      background: orange;
+    }
   </style>
 </head>
-<body>  <!-- Logo -->  <img id="logo" src="logo.png" alt="App Logo">  <!-- Upload option -->  <div class="upload-box">
-    <label for="logoUpload">নতুন লোগো আপলোড করুন:</label>
-    <input type="file" id="logoUpload" accept="image/*">
-  </div>  <script>
-    // Live preview when new logo is uploaded
-    const logo = document.getElementById('logo');
-    const upload = document.getElementById('logoUpload');
+<body>
+  <div class="overlay">
+    <!-- Logo Section -->
+    <div class="logo">
+      <img src="logo.png" alt="Smart Crime Tracker Logo">
+    </div>
+    <div class="title">Smart Crime Tracker</div>
 
-    upload.addEventListener('change', function(event) {
-      const file = event.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          logo.src = e.target.result;
-        };
-        reader.readAsDataURL(file);
-      }
-    });
-  </script></body>
+    <!-- Login Form -->
+    <div class="card">
+      <h2>🔐 Login</h2>
+      <form>
+        <input type="text" placeholder="Username" required><br>
+        <input type="password" placeholder="Password" required><br>
+        <button type="submit">Login</button>
+      </form>
+    </div>
+
+    <!-- Number Search -->
+    <div class="card">
+      <h2>🔍 Number Search</h2>
+      <form>
+        <input type="text" placeholder="Enter Mobile Number"><br>
+        <button type="submit">Search</button>
+      </form>
+    </div>
+
+    <!-- Admin Panel Placeholder -->
+    <div class="card">
+      <h2>⚙️ Admin Panel</h2>
+      <p>Only admin can access this section.</p>
+    </div>
+  </div>
+</body>
 </html>
