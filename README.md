@@ -2,114 +2,163 @@
 <html lang="bn">
 <head>
   <meta charset="UTF-8">
-  <title>Smart Crime Tracker</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Crime Tracker - Presentation</title>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
     body {
+      margin: 0;
       font-family: Arial, sans-serif;
-      background: url('background.jpg') no-repeat center center fixed;
-      background-size: cover;
+      background: #f4f4f4;
+    }
+    .screen {
+      display: none;
       height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-    .container {
-      background: rgba(0,0,0,0.75);
-      padding: 30px;
-      border-radius: 15px;
+      width: 100vw;
       text-align: center;
+      padding: 30px;
+    }
+    .active {
+      display: block;
+    }
+    .opening {
+      background: url('background.jpg') no-repeat center center/cover;
       color: white;
-      width: 350px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
     }
-    .logo img {
-      width: 100px;
+    .opening h1 {
+      font-size: 40px;
       margin-bottom: 20px;
-    }
-    h2 {
-      margin-bottom: 20px;
-    }
-    input {
-      width: 100%;
-      padding: 10px;
-      margin: 8px 0;
-      border-radius: 8px;
-      border: none;
-    }
-    button {
-      width: 100%;
-      padding: 10px;
-      border: none;
-      border-radius: 8px;
-      background: #1e90ff;
-      color: white;
-      font-weight: bold;
-      cursor: pointer;
-      margin-top: 10px;
-    }
-    button:hover {
-      background: #4682b4;
     }
     .dashboard {
-      display: none;
+      background: white;
+    }
+    nav {
+      background: #222;
+      color: white;
+      padding: 15px;
+    }
+    nav button {
+      margin: 0 10px;
+      padding: 10px 20px;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+    section {
+      padding: 30px;
       text-align: left;
     }
-    .dashboard h3 {
-      text-align: center;
-      margin-bottom: 15px;
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
     }
-    .feature {
-      background: rgba(255,255,255,0.1);
-      margin: 10px 0;
-      padding: 10px;
-      border-radius: 10px;
+    table, th, td {
+      border: 1px solid #555;
+      padding: 8px;
+    }
+    .alert {
+      background: red;
+      color: white;
+      padding: 20px;
+      font-weight: bold;
+      border-radius: 8px;
     }
   </style>
 </head>
 <body>
-  <div class="container" id="loginBox">
-    <div class="logo">
-      <img src="logo.png" alt="App Logo">
-    </div>
-    <h2>Admin Login</h2>
-    <input type="text" id="username" placeholder="ইউজারনেম দিন">
-    <input type="password" id="password" placeholder="পাসওয়ার্ড দিন">
-    <button onclick="login()">Login</button>
-  </div>
 
-  <div class="container dashboard" id="dashboard">
-    <div class="logo">
-      <img src="logo.png" alt="App Logo">
-    </div>
-    <h3>📌 Smart Crime Tracker Dashboard</h3>
-    <div class="feature">🔍 নাম্বার সার্চ</div>
-    <div class="feature">📍 লাইভ লোকেশন ট্র্যাক</div>
-    <div class="feature">📞 কল রেকর্ডস (CDR)</div>
-    <div class="feature">👤 প্রোফাইল আইডেন্টিফিকেশন</div>
-    <div class="feature">⚠️ সাসপিশাস হ্যান্ডলার অ্যালার্ট</div>
-    <button onclick="logout()">Logout</button>
-  </div>
+<!-- Opening Screen -->
+<div id="opening" class="screen opening active">
+  <h1>﷽</h1>
+  <h2>أعوذ بالله من الشيطان الرجيم</h2>
+  <h2>بسم الله الرحمن الرحيم</h2>
+  <p>اللهم احفظ هذا النظام لأمة محمد ﷺ</p>
+  <p><b>বাংলা অর্থ:</b> হে আল্লাহ! এই সিস্টেমটিকে মুহাম্মদ ﷺ এর উম্মাহর জন্য হেফাজত করুন।</p>
+  <p>সূরা আল-ইখলাস:</p>
+  <audio controls autoplay>
+    <source src="surah-ikhlas.mp3" type="audio/mpeg">
+  </audio>
+  <br><br>
+  <button onclick="showScreen('dashboard')">শুরু করুন</button>
+</div>
 
-  <script>
-    function login() {
-      let user = document.getElementById("username").value;
-      let pass = document.getElementById("password").value;
+<!-- Dashboard -->
+<div id="dashboard" class="screen dashboard">
+  <nav>
+    <button onclick="showTab('home')">🏠 Home</button>
+    <button onclick="showTab('number')">📱 Number Search</button>
+    <button onclick="showTab('location')">📍 Live Location</button>
+    <button onclick="showTab('criminal')">👤 Criminal Profile</button>
+    <button onclick="showTab('cdr')">📞 CDR Analysis</button>
+    <button onclick="showTab('alert')">⚠ Suspicious Handler</button>
+    <button onclick="showTab('admin')">🔑 Admin Panel</button>
+  </nav>
 
-      if(user === "admin" && pass === "1234"){ 
-        document.getElementById("loginBox").style.display = "none";
-        document.getElementById("dashboard").style.display = "block";
-      } else {
-        alert("ভুল ইউজারনেম অথবা পাসওয়ার্ড!");
-      }
-    }
-    function logout(){
-      document.getElementById("dashboard").style.display = "none";
-      document.getElementById("loginBox").style.display = "block";
-    }
-  </script>
+  <section id="home" class="tab active">
+    <h1>Welcome to Smart Crime Tracker</h1>
+    <p>World’s most advanced autonomous tracking & crime prevention system.</p>
+    <img src="logo.png" alt="Logo" width="200">
+  </section>
+
+  <section id="number" class="tab">
+    <h2>Number Search</h2>
+    <input type="text" placeholder="Enter Mobile Number">
+    <button>Search</button>
+    <p><b>Result:</b> Demo Number → Name: Rahim | Location: Dhaka</p>
+  </section>
+
+  <section id="location" class="tab">
+    <h2>Live Location</h2>
+    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3651.845099885049!2d90.4071430153854!3d23.75086799465337!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3755b895e4f5a3d1%3A0x6a85f10dba3db1c5!2sBaitul%20Mukarram!5e0!3m2!1sen!2sbd!4v1690325476823!5m2!1sen!2sbd" width="100%" height="300" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+  </section>
+
+  <section id="criminal" class="tab">
+    <h2>Criminal Profile Search</h2>
+    <table>
+      <tr><th>Name</th><th>Crime</th><th>Status</th></tr>
+      <tr><td>Hasan</td><td>Smuggling</td><td>Arrested</td></tr>
+      <tr><td>Kamal</td><td>Gold Bar Smuggling</td><td>Under Surveillance</td></tr>
+    </table>
+  </section>
+
+  <section id="cdr" class="tab">
+    <h2>CDR Analysis</h2>
+    <table>
+      <tr><th>Caller</th><th>Receiver</th><th>Duration</th><th>Time</th></tr>
+      <tr><td>01812345678</td><td>01798765432</td><td>3 min</td><td>10:30 AM</td></tr>
+      <tr><td>01655555555</td><td>01944444444</td><td>7 min</td><td>11:45 AM</td></tr>
+    </table>
+  </section>
+
+  <section id="alert" class="tab">
+    <h2>Suspicious Handler Alert</h2>
+    <div class="alert">🚨 Suspicious Contact Detected at Tati Bazar! Take Immediate Action.</div>
+  </section>
+
+  <section id="admin" class="tab">
+    <h2>Admin Approval Panel</h2>
+    <form>
+      <label>User ID Request: <input type="text"></label><br><br>
+      <label>Assign User ID: <input type="text"></label><br><br>
+      <button type="submit">Approve</button>
+      <button type="reset">Reject</button>
+    </form>
+  </section>
+</div>
+
+<script>
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+  function showTab(id) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+</script>
+
 </body>
 </html>
